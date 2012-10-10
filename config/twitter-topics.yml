@@ -1,0 +1,7 @@
+topics:
+  -
+    name: Users
+    category: twitter-mention
+  -
+    name: Hashtags
+    category: twitter-hashtag

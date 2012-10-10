@@ -1,0 +1,72 @@
+// Place all the styles related to the home controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.contentList
+{
+	padding: 0;
+	margin: 0;
+}
+
+.analysis
+{
+	width: 69%;
+}
+
+.tweets 
+{
+	width: 30%;
+	height: 100%;
+	overflow:scroll;
+}
+
+.tweets li
+{
+	font-size: 0.8em;
+	float: left;
+	width: 92%;
+	padding: 4%;
+	background-color: #e8e8e8;
+	list-style-type: none;
+}
+
+.tweets .content
+{
+	width: 100%;
+	float: left;
+}
+
+.tweets .sentiment
+{
+	text-align: right;
+	float: right;
+	width: 45%;
+}
+
+.tweets .author
+{
+	float: left;
+	width: 45%;
+	color: blue;
+	font-weight: bold;
+}
+
+.horizontal-bars li
+{
+	display: block;
+	height: 10em;
+	margin: 1em;
+}
+
+.horizontal-bars li .label
+{
+	position: absolute;
+	margin-top: 2em;
+	width: 2em;
+	color: #fff;
+	font-size: 2em;
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	writing-mode: tb-rl;
+}

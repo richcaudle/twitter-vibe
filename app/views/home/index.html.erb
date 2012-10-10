@@ -1,0 +1,189 @@
+
+<div class="left-side analysis">
+	<h2>FOWA Good or Bad?</h2>
+	<ul id="sentiment" class="horizontal-bars">
+		<li id="positiveSentiment" class="green-gradient" style="width:10em"><span class="label">Good</span></li>
+		<li id="negativeSentiment" class="red-gradient" style="width:20em"><span class="label">Bad</span></li>
+	</ul>
+
+	<h2>Users</h2>
+	<ul id="users">
+
+	</ul>
+
+	<h2>Hashtags</h2>
+	<ul id="hashtags">
+
+	</ul>
+</div>
+
+<div class="right-side tweets">
+	<h2>#fowa</h2>
+	<ul id="liveTweets" class="contentList">
+		<!-- <li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li>
+		<li>
+			<span class="author">adasd</span>
+			<span class="sentiment positive">good</span>
+			<span class="content">asda</span>
+		</li> -->
+	</ul>
+</div>
+
+
+<script src="http://js.pusher.com/1.12/pusher.min.js"></script>
+<script>
+
+	var liveTweetsList = $('#liveTweets');
+	var usersList = $('#users')
+	var hashtagsList = $('#hashtags')
+	var positiveSentiment = $('#positiveSentiment');
+	var negativeSentiment = $('#negativeSentiment');
+
+	Pusher.log = function( msg ) {
+		if( window.console && window.console.log ) {
+			window.console.log( msg );
+		}
+	};
+
+	$(document).ready(function() {
+		
+		// establish Pusher connection
+		var pusher = new Pusher('<%= @app_key %>');
+
+		var liveTweetsChannel = pusher.subscribe('live-tweets');
+
+		liveTweetsChannel.bind('new-tweet', function(data) {
+			displayTweet(data);
+		});
+		
+		var sentimentChannel = pusher.subscribe('sentiment-results');
+
+		sentimentChannel.bind('new-data', function(data) {
+			updateSentiment(data);
+		});
+
+		var usersChannel = pusher.subscribe('topic-trends-users');
+
+		usersChannel.bind('new-data', function(data) {
+			updateUsers(data);
+		});
+
+		var hashtagsChannel = pusher.subscribe('topic-trends-hashtags');
+
+		hashtagsChannel.bind('new-data', function(data) {
+			updateHashtags(data);
+		});
+
+	});
+
+	function displayTweet(data)
+	{
+		var sentimentClass = 'sentiment';
+		var sentiment = '';
+
+		if(data.sentiment > 0)
+		{
+			sentimentClass += ' positive';
+			sentiment = 'good';
+		}
+		else if (data.sentiment < 0)
+		{
+			sentimentClass += ' negative';
+			sentiment = 'bad';
+		}
+		else
+		{
+			sentimentClass += ' neutral';
+			sentiment = '';
+		}
+
+		liveTweetsList.prepend('<li><span class="author">' + data.author + '</span>'
+			+ '<span class="' + sentimentClass + '">' + sentiment + '</span>'
+			+ '<span class="content">' + data.content + '</span>'
+			+ '</li>');
+
+		if(liveTweetsList.children().length > 10)
+			$('#liveTweets li:last-child').remove();
+	}	
+
+	function updateSentiment(data)
+	{
+		var positive = data.positive;
+		var negative = data.negative;
+
+		var positiveWidth = positive / (positive + negative) * 100;
+		var negativeWidth = negative / (positive + negative) * 100;
+
+		positiveSentiment.animate({ width: positiveWidth + "%"}, 500);
+		negativeSentiment.animate({ width: negativeWidth + "%"}, 500);
+	}
+
+	function updateUsers(data)
+	{
+		usersList.empty();
+
+		$.each(data, function(index, value) {
+			usersList.append('<li><span class="term">' + value.name + '</span>: <span class="count">' + value.total + '</span></li>');
+		});
+	}
+
+	function updateHashtags(data)
+	{
+		hashtagsList.empty();
+
+		$.each(data, function(index, value) {
+			hashtagsList.append('<li><span class="term">' + value.name + '</span>: <span class="count">' + value.total + '</span></li>');
+		});
+	}
+
+	
+</script>
