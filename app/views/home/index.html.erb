@@ -1,92 +1,69 @@
-
-<div class="left-side analysis">
-	<h2>FOWA Good or Bad?</h2>
-	<ul id="sentiment" class="horizontal-bars">
-		<li id="positiveSentiment" class="green-gradient" style="width:10em"><span class="label">Good</span></li>
-		<li id="negativeSentiment" class="red-gradient" style="width:20em"><span class="label">Bad</span></li>
-	</ul>
-
-	<h2>Users</h2>
-	<ul id="users">
-
-	</ul>
-
-	<h2>Hashtags</h2>
-	<ul id="hashtags">
-
-	</ul>
+<div class="left-side tweets">
+  <h2>#fowa #fom</h2>
+  <ul id="liveTweets" class="contentList">
+      <!-- <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li>
+      <li><span class="author">Richard</span>
+        <span class="sentiment positive">Good</span>
+        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
+      </li> -->
+  </ul>
 </div>
 
-<div class="right-side tweets">
-	<h2>#fowa</h2>
-	<ul id="liveTweets" class="contentList">
-		<!-- <li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li>
-		<li>
-			<span class="author">adasd</span>
-			<span class="sentiment positive">good</span>
-			<span class="content">asda</span>
-		</li> -->
-	</ul>
-</div>
+<div class="analysis right-side">
 
+  <div class="page">
+    <h2>who are people talking about?</h2>
+    <div id="users"></div>
+  </div>
+
+  <div class="page">
+    <h2>What Are People Talking About?</h2>
+    <div id="hashtags"></div>
+  </div>
+
+  <div class="page">
+    <h2>sentiment</h2>
+    <canvas id="mycanvas" width="800" height="600"></canvas>
+  </div>
+
+</div>
 
 <script src="http://js.pusher.com/1.12/pusher.min.js"></script>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://www.jasondavies.com/wordcloud/d3.layout.cloud.js"></script>
+
 <script>
 
 	var liveTweetsList = $('#liveTweets');
-	var usersList = $('#users')
-	var hashtagsList = $('#hashtags')
-	var positiveSentiment = $('#positiveSentiment');
-	var negativeSentiment = $('#negativeSentiment');
+  var positiveLine = new TimeSeries();
+  var negativeLine = new TimeSeries();
 
 	Pusher.log = function( msg ) {
 		if( window.console && window.console.log ) {
@@ -105,11 +82,11 @@
 			displayTweet(data);
 		});
 		
-		var sentimentChannel = pusher.subscribe('sentiment-results');
+		/*var sentimentChannel = pusher.subscribe('sentiment-results');
 
 		sentimentChannel.bind('new-data', function(data) {
 			updateSentiment(data);
-		});
+		});*/
 
 		var usersChannel = pusher.subscribe('topic-trends-users');
 
@@ -122,6 +99,8 @@
 		hashtagsChannel.bind('new-data', function(data) {
 			updateHashtags(data);
 		});
+
+    //setupGraph();
 
 	});
 
@@ -157,33 +136,184 @@
 
 	function updateSentiment(data)
 	{
-		var positive = data.positive;
-		var negative = data.negative;
+    positiveVal = data.positive / (data.positive + data.negative) * 100;
+    negativeVal = data.negative / (data.positive + data.negative) * 100;
 
-		var positiveWidth = positive / (positive + negative) * 100;
-		var negativeWidth = negative / (positive + negative) * 100;
-
-		positiveSentiment.animate({ width: positiveWidth + "%"}, 500);
-		negativeSentiment.animate({ width: negativeWidth + "%"}, 500);
+    positiveLine.append(new Date().getTime(), positiveVal);
+    negativeLine.append(new Date().getTime(), negativeVal);
 	}
 
 	function updateUsers(data)
 	{
-		usersList.empty();
-
-		$.each(data, function(index, value) {
-			usersList.append('<li><span class="term">' + value.name + '</span>: <span class="count">' + value.total + '</span></li>');
-		});
+		updateUsersCloud(data);
 	}
 
 	function updateHashtags(data)
 	{
-		hashtagsList.empty();
-
-		$.each(data, function(index, value) {
-			hashtagsList.append('<li><span class="term">' + value.name + '</span>: <span class="count">' + value.total + '</span></li>');
-		});
+		updateHashtagsCloud(data);
 	}
 
+  function setupGraph()
+  {
+
+      var smoothie = new SmoothieChart(
+          { 
+              grid: { strokeStyle: 'rgb(125, 0, 0)', fillStyle: 'rgb(60, 0, 0)', lineWidth: 1, millisPerLine: 2000, verticalSections: 6 }, 
+              minValue: 0, maxValue: 100
+            }
+          );
+      smoothie.addTimeSeries(positiveLine, { strokeStyle: 'rgb(0, 255, 0)', fillStyle: 'rgba(0, 255, 0, 0.4)', lineWidth: 3 });
+      smoothie.addTimeSeries(negativeLine, { strokeStyle: 'rgb(255, 0, 0)', fillStyle: 'rgba(255, 0, 0, 0.3)', lineWidth: 3 });
+
+      smoothie.streamTo(document.getElementById("mycanvas"), 1000);
+  }
+
 	
+</script>
+
+<script>
+
+var w = $(window).width() * 0.70,
+    h = $(window).height() * 0.75;
+
+var fill = d3.scale.category20b();
+
+var words = [],
+    max,
+    scale = 1,
+    complete = 0,
+    keyword = "",
+    tags,
+    fontSize,
+    maxLength = 30;
+
+var scaling = d3.scale.log().range([10, 100]);
+
+/* For Hashtags visualisation */
+var layoutTags = d3.layout.cloud().timeInterval(10).size([w, h])
+      .fontSize(function(d) { return scaling(d.total); })
+      .text(function(d) { return d.name; })
+      .on("end", drawTags);
+
+var svgTags = d3.select("#hashtags").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+var backgroundTags = svgTags.append("g");
+var visTags = svgTags.append("g").attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
+
+function updateHashtagsCloud(terms) {
+  layoutTags.font('Impact').spiral('archimedean');
+  layoutTags.stop().words(terms).start();
+}
+
+function drawTags(data,bounds) {
+
+  scale = bounds ? Math.min(
+      w / Math.abs(bounds[1].x - w / 2),
+      w / Math.abs(bounds[0].x - w / 2),
+      h / Math.abs(bounds[1].y - h / 2),
+      h / Math.abs(bounds[0].y - h / 2)) / 2 : 1;
+  words = data;
+  var text = visTags.selectAll("text")
+      .data(words, function(d) { return d.text.toLowerCase(); });
+  text.transition()
+      .duration(1000)
+      .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+      .style("font-size", function(d) { return d.size + "px"; });
+  text.enter().append("text")
+      .attr("text-anchor", "middle")
+      .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+      .style("font-size", function(d) { return d.size + "px"; })
+      .on("click", function(d) {
+        load(d.text);
+      })
+      .style("opacity", 1e-6)
+    .transition()
+      .duration(1000)
+      .style("opacity", 1);
+  text.style("font-family", function(d) { return d.font; })
+      .style("fill", function(d) { return fill(d.text.toLowerCase()); })
+      .text(function(d) { return d.text; });
+  var exitGroup = backgroundTags.append("g")
+      .attr("transform", visTags.attr("transform"));
+  var exitGroupNode = exitGroup.node();
+  text.exit().each(function() {
+    exitGroupNode.appendChild(this);
+  });
+  exitGroup.transition()
+      .duration(1000)
+      .style("opacity", 1e-6)
+      .remove();
+  visTags.transition()
+      .delay(1000)
+      .duration(750)
+      .attr("transform", "translate(" + [w >> 1, h >> 1] + ")scale(" + scale + ")");
+}
+
+
+/* For USERS visualisation */
+
+var layoutUsers = d3.layout.cloud().timeInterval(10).size([w, h])
+      .fontSize(function(d) { return scaling(d.total); })
+      .text(function(d) { return "@" + d.name; })
+      .on("end", drawUsers);
+
+var svgUsers = d3.select("#users").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+var backgroundUsers = svgUsers.append("g");
+var visUsers = svgUsers.append("g").attr("transform", "translate(" + [w >> 1, h >> 1] + ")");
+
+function updateUsersCloud(terms) {
+  layoutUsers.font('Impact').spiral('archimedean');
+  layoutUsers.stop().words(terms).start();
+}
+
+function drawUsers(data,bounds) {
+
+  scale = bounds ? Math.min(
+      w / Math.abs(bounds[1].x - w / 2),
+      w / Math.abs(bounds[0].x - w / 2),
+      h / Math.abs(bounds[1].y - h / 2),
+      h / Math.abs(bounds[0].y - h / 2)) / 2 : 1;
+  words = data;
+  var text = visUsers.selectAll("text")
+      .data(words, function(d) { return d.text.toLowerCase(); });
+  text.transition()
+      .duration(1000)
+      .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+      .style("font-size", function(d) { return d.size + "px"; });
+  text.enter().append("text")
+      .attr("text-anchor", "middle")
+      .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+      .style("font-size", function(d) { return d.size + "px"; })
+      .on("click", function(d) {
+        load(d.text);
+      })
+      .style("opacity", 1e-6)
+    .transition()
+      .duration(1000)
+      .style("opacity", 1);
+  text.style("font-family", function(d) { return d.font; })
+      .style("fill", function(d) { return fill(d.text.toLowerCase()); })
+      .text(function(d) { return d.text; });
+  var exitGroup = backgroundUsers.append("g")
+      .attr("transform", visUsers.attr("transform"));
+  var exitGroupNode = exitGroup.node();
+  text.exit().each(function() {
+    exitGroupNode.appendChild(this);
+  });
+  exitGroup.transition()
+      .duration(1000)
+      .style("opacity", 1e-6)
+      .remove();
+  visUsers.transition()
+      .delay(1000)
+      .duration(750)
+      .attr("transform", "translate(" + [w >> 1, h >> 1] + ")scale(" + scale + ")");
+}
+
+
 </script>

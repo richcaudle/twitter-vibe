@@ -3,8 +3,9 @@ require 'topics-helper.rb'
 require 'sentimentresult.rb'
 
 # Settings
-@max_tweet_age_in_mins = 10
+@max_tweet_age_in_mins = 120
 @max_tweets_analyse = 50
+
 
 def process_twitter_usernames
 
@@ -61,7 +62,19 @@ def publish_topic_trends
 	@topics.each do |topic|
 
 		results = Term.where(:topic_id => topic.id).joins(:mention).select("terms.name, count(*) as total").group("terms.name").order("total DESC").limit(20)
-		Pusher['topic-trends-' + topic.name.downcase].trigger('new-data', results.to_json)
+	
+		if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s)) || ((instance_variable_get("@topic_results_pushed_" + topic.id.to_s) + 20) < Time.now)
+			
+			if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s))
+				p 'Results have changed for: ' + topic.name
+			end
+			
+			Pusher['topic-trends-' + topic.name.downcase].trigger('new-data', results.to_json)
+
+			instance_variable_set("@topic_results_data_" + topic.id.to_s, results)
+			instance_variable_set("@topic_results_pushed_" + topic.id.to_s, Time.now)
+
+		end		
 
 	end
 
@@ -88,7 +101,7 @@ while true do
 	#process_twitter_usernames
 	delete_old_data
 
-	sleep(2)
+	sleep(3)
 
 end
 

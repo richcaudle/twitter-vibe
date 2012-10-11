@@ -10,36 +10,68 @@
 
 .analysis
 {
-	width: 69%;
+	width: 74%;	
+}
+
+.page
+{
+    background-color: #e2e9fd;
+    padding: 0.6em;
+}
+
+.page h2
+{
+	color: #a2a9bd;
+	margin: 0.2em 0 1.4em 0;
+	padding-bottom: 0.2em;
+	font-size: 2.8em;
+	text-align: center;
 }
 
 .tweets 
 {
-	width: 30%;
+	width: 26%;
 	height: 100%;
-	overflow:scroll;
+	overflow:none;
+}
+
+.tweets h2
+{
+	color: #e2e9fd;
+	margin: 0.2em 0 0.4em 0;
+	font-size: 3em;
+	text-align: center;
+}
+
+.tweets ul
+{
+	margin: auto;
+	width: 86%;
 }
 
 .tweets li
 {
 	font-size: 0.8em;
 	float: left;
-	width: 92%;
-	padding: 4%;
-	background-color: #e8e8e8;
+	width: 100%;
+	background-color: #e2e9fd;
 	list-style-type: none;
+	margin-bottom: 1em;
 }
 
 .tweets .content
 {
-	width: 100%;
+	padding: 0.6em;
 	float: left;
+	background-color: #fff;
+	color: #202020;
 }
 
 .tweets .sentiment
 {
 	text-align: right;
 	float: right;
+	padding: 0.6em;
 	width: 45%;
 }
 
@@ -47,8 +79,8 @@
 {
 	float: left;
 	width: 45%;
-	color: blue;
-	font-weight: bold;
+	padding: 0.6em;
+	color: #62697d;
 }
 
 .horizontal-bars li
@@ -58,15 +90,7 @@
 	margin: 1em;
 }
 
-.horizontal-bars li .label
+#users, #hashtags
 {
-	position: absolute;
-	margin-top: 2em;
-	width: 2em;
-	color: #fff;
-	font-size: 2em;
-	-webkit-transform: rotate(270deg);
-	-moz-transform: rotate(270deg);
-	-o-transform: rotate(270deg);
-	writing-mode: tb-rl;
+	margin: auto;
 }

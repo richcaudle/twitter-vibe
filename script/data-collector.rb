@@ -90,6 +90,7 @@ end
 # Saves a mention of a term in a tweet
 def save_mention(topic_id, tweet_id, term, requires_userdetails)
 
+	term = term.downcase
 	db_term = Term.find_or_initialize_by_topic_id_and_source_name(topic_id, term)
 
 	if db_term.new_record?
