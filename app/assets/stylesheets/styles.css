@@ -38,6 +38,7 @@ h2
 {
 	float: left;
     min-height: 100%;
+    height: 100%;
 }
 
 .positive
@@ -75,3 +76,4 @@ h2
 	background: -ms-linear-gradient(top,  #027710 0%,#039b19 44%,#005905 100%); /* IE10+ */
 	background: linear-gradient(to bottom,  #027710 0%,#039b19 44%,#005905 100%); /* W3C */
 }
+

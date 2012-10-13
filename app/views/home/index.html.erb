@@ -4,44 +4,11 @@
       <!-- <li><span class="author">Richard</span>
         <span class="sentiment positive">Good</span>
         <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li>
-      <li><span class="author">Richard</span>
-        <span class="sentiment positive">Good</span>
-        <span class="content">This is a fake tweet written by Rich, it may be 2 lines long!</span>
-      </li> -->
+      </li>-->
   </ul>
 </div>
 
 <div class="analysis right-side">
-
-  <div class="page">
-    <h2>who are people talking about?</h2>
-    <div id="users"></div>
-  </div>
 
   <div class="page">
     <h2>what are people talking about?</h2>
@@ -49,9 +16,17 @@
   </div>
 
   <div class="page">
+    <h2>who are people talking about?</h2>
+        <ul id="users">
+        <!-- <li><img src="http://a0.twimg.com/profile_images/1399208454/Kibbe4_normal.jpg" /><span>Richard Caudle (10)</span><div style="width: 70%"></div></li>
+         -->
+    </ul>
+  </div>
+
+  <!-- <div class="page">
     <h2>sentiment</h2>
     <canvas id="mycanvas" width="800" height="600"></canvas>
-  </div>
+  </div> -->
 
 </div>
 
@@ -62,6 +37,10 @@
 <script>
 
 	var liveTweetsList = $('#liveTweets');
+
+  var usersList = $('#users');
+  var usersColourList = d3.scale.category20b().range();
+
   var positiveLine = new TimeSeries();
   var negativeLine = new TimeSeries();
 
@@ -125,10 +104,12 @@
 			sentiment = '';
 		}
 
-		liveTweetsList.prepend('<li><span class="author">' + data.author + '</span>'
+		liveTweetsList.prepend('<li style="display:none"><span class="author">' + data.author + '</span>'
 			+ '<span class="' + sentimentClass + '">' + sentiment + '</span>'
 			+ '<span class="content">' + data.content + '</span>'
 			+ '</li>');
+
+    $("#liveTweets li:first").slideDown(350);
 
 		if(liveTweetsList.children().length > 10)
 			$('#liveTweets li:last-child').remove();
@@ -143,10 +124,34 @@
     negativeLine.append(new Date().getTime(), negativeVal);
 	}
 
-	function updateUsers(data)
-	{
-		updateUsersCloud(data);
-	}
+  function updateUsers(data)
+  {
+    usersList.hide();
+    usersList.empty();
+
+    // Calculate max value
+    var maxTotal = 0;
+
+    $.each(data, function(index, value) {
+      if(value.total > maxTotal) maxTotal = value.total;
+    });
+
+    $.each(data, function(index, value) {
+      if(index < 7)
+      {
+        var endWidth = value.total / maxTotal * 90;
+
+        usersList.append('<li><img src="' + value.image_url + '" /><span>'  + value.name + ' (@' + value.source_name + ')' + '</span><div style="background-color:' + usersColourList[index * 3] + '"></div></li>');
+
+        $('#users li div:last').delay(300 + index * 100).animate({
+            width: endWidth + '%'
+            }, 300);
+      }
+    });
+
+    usersList.slideDown(300);
+    
+  }
 
 	function updateHashtags(data)
 	{
@@ -187,7 +192,7 @@ var words = [],
     fontSize,
     maxLength = 30;
 
-var scaling = d3.scale.log().range([10, 100]);
+var scaling = d3.scale.log().range([20, 100]);
 
 /* For Hashtags visualisation */
 var layoutTags = d3.layout.cloud().timeInterval(10).size([w, h])

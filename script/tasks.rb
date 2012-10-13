@@ -1,6 +1,8 @@
 require 'open-uri'
 require 'topics-helper.rb'
 require 'sentimentresult.rb'
+require 'oauth'
+require 'json'
 
 # Settings
 @max_tweet_age_in_mins = 120
@@ -8,6 +10,9 @@ require 'sentimentresult.rb'
 
 
 def process_twitter_usernames
+
+	# Get twitter auth token
+	twitter_access_token = prepare_access_token('19562292-7mkTsZkGVjuFwRaWVA1cVUlNBdMSnp98KuNbN08lo','Ju0RRXGlCrQCnQ7ZHEQTHlnfMZPUSkSQFI5lmrXtWIE')
 
 	# Get list of terms with no 'name' value, whose topic is type twitter-username
 	terms = Term.joins(:topic).where("topics.category = 'twitter-mention' AND terms.processed = 'f'").limit(100)
@@ -27,13 +32,24 @@ def process_twitter_usernames
 
 		end
 
-		p 'Requesting: ' + "https://api.twitter.com/1.1/users/lookup.json?screen_name=" + query
+		url = "https://api.twitter.com/1.1/users/lookup.json?screen_name=" + query
+		
+		p 'Requesting: ' + url
 
-		content = open("https://api.twitter.com/1.1/users/lookup.json?screen_name=" + query).read
+		response = twitter_access_token.request(:get, url)
 
-		p content
+		data = JSON.parse(response.body)
 
 		# Save name for each term as returned
+		data.each do |user_profile|
+
+			db_term = Term.find_by_name(user_profile['screen_name'].downcase)
+			db_term.name = user_profile['name']
+			db_term.image_url = user_profile['profile_image_url']
+			db_term.processed = true
+			db_term.save
+
+		end
 
 	end
 
@@ -61,8 +77,8 @@ def publish_topic_trends
 
 	@topics.each do |topic|
 
-		results = Term.where(:topic_id => topic.id).joins(:mention).select("terms.name, count(*) as total").group("terms.name").order("total DESC").limit(20)
-	
+		results = Term.where("terms.topic_id = ? AND terms.hide = ? AND terms.processed = ?", topic.id, false, true).joins(:mention).select("terms.name, terms.image_url, terms.source_name, count(*) as total").group("terms.name, terms.image_url, terms.source_name").order("total DESC").limit(20)
+
 		if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s)) || ((instance_variable_get("@topic_results_pushed_" + topic.id.to_s) + 20) < Time.now)
 			
 			if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s))
@@ -80,6 +96,24 @@ def publish_topic_trends
 
 end
 
+# Exchange your oauth_token and oauth_token_secret for an AccessToken instance.
+def prepare_access_token(oauth_token, oauth_token_secret)
+  
+  consumer = OAuth::Consumer.new("M7rdMmxnRe07eevjr2qNzg", "6Id7IfEYKNA5AM1PTHHitnEd6KgHxXe2NHfNzR2CZhk",
+    { :site => "http://api.twitter.com",
+      :scheme => :header
+    })
+
+  # now create the access token object from passed values
+  token_hash = { :oauth_token => oauth_token,
+                 :oauth_token_secret => oauth_token_secret
+               }
+  access_token = OAuth::AccessToken.from_hash(consumer, token_hash )
+  return access_token
+
+end
+
+
 # START OF MAIN LOGIC FLOW
 
 # LOGIC: For each iteration...
@@ -94,14 +128,17 @@ TopicsHelper.initDB
 # Forever iterate this loop
 while true do
 
+	# Update twitter user details
+	process_twitter_usernames
+
 	# push latest data to front-end
-	publish_sentiment_data
+	#publish_sentiment_data
 	publish_topic_trends
 
 	#process_twitter_usernames
 	delete_old_data
 
-	sleep(3)
+	sleep(5)
 
 end
 

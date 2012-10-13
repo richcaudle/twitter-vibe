@@ -98,6 +98,7 @@ def save_mention(topic_id, tweet_id, term, requires_userdetails)
 		db_term.source_name = term
 		db_term.topic_id = topic_id
 		db_term.processed = !requires_userdetails
+		db_term.hide = false
 		db_term.save
 	end
 

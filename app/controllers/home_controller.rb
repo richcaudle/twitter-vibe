@@ -4,6 +4,6 @@ class HomeController < ApplicationController
   end
 
   def test
-
+  	@app_key = Pusher.key
   end
 end
