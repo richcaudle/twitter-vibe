@@ -8,7 +8,6 @@ require 'json'
 @max_tweet_age_in_mins = 120
 @max_tweets_analyse = 50
 
-
 def process_twitter_usernames
 
 	# Get twitter auth token
@@ -77,7 +76,12 @@ def publish_topic_trends
 
 	@topics.each do |topic|
 
-		results = Term.where("terms.topic_id = ? AND terms.hide = ? AND terms.processed = ?", topic.id, false, true).joins(:mention).select("terms.name, terms.image_url, terms.source_name, count(*) as total").group("terms.name, terms.image_url, terms.source_name").order("total DESC").limit(20)
+		# limit to only 7 if user trends
+		if topic.id == 1 
+			limit = 7
+		end
+
+		results = Term.where("terms.topic_id = ? AND terms.hide = ? AND terms.processed = ?", topic.id, false, true).joins(:mention).select("terms.name, terms.image_url, terms.source_name, count(*) as total").group("terms.name, terms.image_url, terms.source_name").order("total DESC").limit(limit)
 
 		if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s)) || ((instance_variable_get("@topic_results_pushed_" + topic.id.to_s) + 20) < Time.now)
 			

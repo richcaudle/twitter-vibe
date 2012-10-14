@@ -37,6 +37,8 @@
 <script>
 
 	var liveTweetsList = $('#liveTweets');
+  var lastUserTrendsData = null;
+  var lastHashtagsTrendsData = null;
 
   var usersList = $('#users');
   var usersColourList = d3.scale.category20b().range();
@@ -60,12 +62,6 @@
 		liveTweetsChannel.bind('new-tweet', function(data) {
 			displayTweet(data);
 		});
-		
-		/*var sentimentChannel = pusher.subscribe('sentiment-results');
-
-		sentimentChannel.bind('new-data', function(data) {
-			updateSentiment(data);
-		});*/
 
 		var usersChannel = pusher.subscribe('topic-trends-users');
 
@@ -126,36 +122,47 @@
 
   function updateUsers(data)
   {
-    usersList.hide();
-    usersList.empty();
 
-    // Calculate max value
-    var maxTotal = 0;
+    if(lastUserTrendsData == null || !Object.identical(lastUserTrendsData, data))
+    {
+      lastUserTrendsData = data;
 
-    $.each(data, function(index, value) {
-      if(value.total > maxTotal) maxTotal = value.total;
-    });
+      usersList.hide();
+      usersList.empty();
 
-    $.each(data, function(index, value) {
-      if(index < 7)
-      {
-        var endWidth = value.total / maxTotal * 90;
+      // Calculate max value
+      var maxTotal = 0;
 
-        usersList.append('<li><img src="' + value.image_url + '" /><span>'  + value.name + ' (@' + value.source_name + ')' + '</span><div style="background-color:' + usersColourList[index * 3] + '"></div></li>');
+      $.each(data, function(index, value) {
+        if(value.total > maxTotal) maxTotal = value.total;
+      });
 
-        $('#users li div:last').delay(300 + index * 100).animate({
-            width: endWidth + '%'
-            }, 300);
-      }
-    });
+      $.each(data, function(index, value) {
+        if(index < 7)
+        {
+          var endWidth = value.total / maxTotal * 90;
 
-    usersList.slideDown(300);
-    
+          usersList.append('<li><img src="' + value.image_url + '" /><span>'  + value.name + ' (@' + value.source_name + ')' + '</span><div style="background-color:' + usersColourList[index * 3] + '"></div></li>');
+
+          $('#users li div:last').delay(300 + index * 100).animate({
+              width: endWidth + '%'
+              }, 300);
+        }
+      });
+
+      usersList.slideDown(300);
+      
+    }
+    else
+    {
+      console.log('Data not new!');
+    }
+
   }
 
 	function updateHashtags(data)
 	{
-		updateHashtagsCloud(data);
+    updateHashtagsCloud(data);
 	}
 
   function setupGraph()

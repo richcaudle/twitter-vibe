@@ -70,9 +70,16 @@ end
 def parse_and_save_usermentions(topic_id, tweet, interaction)
 
 	if interaction['twitter'].include? 'mention_ids'
+
+		p 'User mention found'
+
 		interaction['twitter']['mentions'].each do |mention|
 			save_mention(topic_id, tweet.id, mention, true)
 		end
+
+		# Push new data to front-end
+		publish_topic_trends topic_id
+
 	end
 
 end
@@ -80,9 +87,18 @@ end
 # parses twitter content for people mentions, and saves results to db
 def parse_and_save_hashtags(topic_id, tweet)
 
-	tweet.content.scan(/#\w+/).flatten.each do |hashtag|
-		p 'New hashtag: ' + hashtag
-		save_mention(topic_id, tweet.id, hashtag, false)
+	if /#\w+/.match(tweet.content)
+
+		p 'Hashtag found'
+
+		tweet.content.scan(/#\w+/).flatten.each do |hashtag|
+			p 'New hashtag: ' + hashtag
+			save_mention(topic_id, tweet.id, hashtag, false)
+		end
+		
+		# Push new data to front-end
+		publish_topic_trends topic_id
+
 	end
 
 end
@@ -107,6 +123,29 @@ def save_mention(topic_id, tweet_id, term, requires_userdetails)
 	mention.term_id = db_term.id
 	mention.save
 
+end
+
+
+# publishes trend data for all topics to Pusher
+def publish_topic_trends(topic_id)
+
+	topic = Topic.find_by_id(topic_id)
+
+	limit = 30
+
+	# limit to only 7 if user trends
+	if topic_id == 1 
+		limit = 7
+	end
+	
+	results = Term.where("terms.topic_id = ? AND terms.hide = ? AND terms.processed = ?", topic.id, false, true).joins(:mention).select("terms.name, terms.image_url, terms.source_name, count(*) as total").group("terms.name, terms.image_url, terms.source_name").order("total DESC").limit(limit)
+
+	if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s))
+		p 'Results have changed for: ' + topic.name
+	end
+	
+	Pusher['topic-trends-' + topic.name.downcase].trigger('new-data', results.to_json)
+	
 end
 
 # Publishes a tweet to Pusher channel

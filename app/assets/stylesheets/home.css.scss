@@ -10,19 +10,20 @@
 
 .analysis
 {
-	width: 74%;	
+	width: 60%;	
 }
 
 .page
 {
     background-color: #e2e9fd;
     padding: 0.6em;
+    border-bottom: solid 6px #7f6a31;
 }
 
 .page h2
 {
 	color: #a2a9bd;
-	margin: 0.2em 0 1.4em 0;
+	margin: 0.15em 0 1.4em 0;
 	padding-bottom: 0.2em;
 	font-size: 2.8em;
 	text-align: center;
@@ -32,23 +33,22 @@
 {
 	width: 26%;
 	height: 100%;
-	overflow: none;
+	overflow: hidden;
+	background-color: #7f6a31;
 }
 
 .tweets h2
 {
 	color: #e2e9fd;
-	margin: 0.2em 0 0.4em 0;
-	font-size: 3em;
+	margin: 0.4em 0 0.4em 0;
+	font-size: 2.8em;
 	text-align: center;
 }
 
 .tweets ul
 {
-	margin: auto;
+	margin: 0 auto;
 	width: 86%;
-    height: 100%;
-    overflow: none;
 }
 
 .tweets li

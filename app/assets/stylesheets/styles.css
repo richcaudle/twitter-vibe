@@ -4,7 +4,7 @@ html, body
     width: 100%;
 	margin: 0;
 	padding: 0;
-	background-color: #7f6a31;
+	background-color: #e2e9fd;
 }
 
 body
@@ -13,8 +13,7 @@ body
 }
 
 .page {
-    height: 100%;
-    margin-bottom: 5px;
+    height: 98%;
 }
 
 h1
@@ -30,8 +29,9 @@ h2
 .right-side
 {
 	float: right;
+	width: 74%;
 	height: 100%;
-	overflow:scroll;
+    overflow-y: scroll;
 }
 
 .left-side

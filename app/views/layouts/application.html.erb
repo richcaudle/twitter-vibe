@@ -5,6 +5,25 @@
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
+  <style>
+	  /* Smartphones (portrait and landscape) ----------- */
+	  @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+		.left-side { display: none; }
+		.right-side { width: 100%;}
+		#hashtags { width: 70%; }
+		#users li img { width: 2em; height: 2em; }
+		#users li div { height: 2em; left: 3em; }
+		.page h2 { margin-bottom: 0.8em; }
+
+		#users li span
+		{
+			font-size: 1.0em;
+			height: 1.1em;
+			top: 0.4em;
+			left: 3.5em;
+		}
+	  }
+	  </style>
 </head>
 <body>
 
