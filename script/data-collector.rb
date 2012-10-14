@@ -12,7 +12,7 @@ def datasift_connect
 	puts 'Connecting to Datasift stream...'
 
 	user = DataSift::User.new("rich_caudle", "bc583ac6e70761eb16f4f67e128ea824")
-	consumer = user.getConsumer(DataSift::StreamConsumer::TYPE_HTTP, "746c1bdc0f1526e8ddce24b0e60eb145")
+	consumer = user.getConsumer(DataSift::StreamConsumer::TYPE_HTTP, "f91dfb5513ee511d29606c375ede7481")
 	
 	puts 'Connected successfully!'
 
