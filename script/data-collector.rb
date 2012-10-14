@@ -41,7 +41,13 @@ def parse_interaction_to_tweet(interaction)
 	#puts interaction.to_yaml
 	tweet = Tweet.new
 	tweet.content = interaction['interaction']['content']
-	tweet.sentiment = interaction['salience']['content']['sentiment']
+	
+	begin 
+		tweet.sentiment = interaction['salience']['content']['sentiment']
+	rescue
+		tweet.sentiment = 0
+	end
+
 	tweet.author = interaction['interaction']['author']['username']
 	tweet.created_at = interaction['interaction']['created_at']
 
@@ -137,7 +143,7 @@ def publish_topic_trends(topic_id)
 	if topic_id == 1 
 		limit = 7
 	end
-	
+
 	results = Term.where("terms.topic_id = ? AND terms.hide = ? AND terms.processed = ?", topic.id, false, true).joins(:mention).select("terms.name, terms.image_url, terms.source_name, count(*) as total").group("terms.name, terms.image_url, terms.source_name").order("total DESC").limit(limit)
 
 	if (results != instance_variable_get("@topic_results_data_" + topic.id.to_s))

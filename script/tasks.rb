@@ -77,6 +77,8 @@ def publish_topic_trends
 	@topics.each do |topic|
 
 		# limit to only 7 if user trends
+		limit = 30 
+		
 		if topic.id == 1 
 			limit = 7
 		end
