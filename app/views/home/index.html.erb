@@ -48,7 +48,7 @@
 
 	Pusher.log = function( msg ) {
 		if( window.console && window.console.log ) {
-			window.console.log( msg );
+//			window.console.log( msg );
 		}
 	};
 
@@ -134,7 +134,10 @@
       var maxTotal = 0;
 
       $.each(data, function(index, value) {
-        if(value.total > maxTotal) maxTotal = value.total;
+        if(parseInt(value.total) > maxTotal) 
+        {
+          maxTotal = value.total;
+        }
       });
 
       $.each(data, function(index, value) {
