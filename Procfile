@@ -1,3 +1,3 @@
-web:			rails server -p 3000
+web:			rails server -p $PORT
 datacollector:	rails runner ./script/data-collector.rb
 tasks:			rails runner ./script/tasks.rb
