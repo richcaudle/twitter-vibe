@@ -6,7 +6,7 @@ module TopicsHelper
 		puts 'TOPICS: Initializing Topics...'
 
 		# Read topic lists from YAML file
-		TOPICS_CONFIG['topics'].each do |topic|
+		SOCIAL_CONFIG['topics'].each do |topic|
 			
 			# Find topic item in DB
 			db_topic = Topic.find_or_initialize_by_name(topic['name'])
@@ -30,5 +30,6 @@ module TopicsHelper
 		return Topic.all
 
 	end
+
 
 end

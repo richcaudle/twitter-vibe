@@ -11,8 +11,9 @@ def datasift_connect
 
 	puts 'Connecting to Datasift stream...'
 
-	user = DataSift::User.new("rich_caudle", "bc583ac6e70761eb16f4f67e128ea824")
-	consumer = user.getConsumer(DataSift::StreamConsumer::TYPE_HTTP, "f91dfb5513ee511d29606c375ede7481")
+	user = DataSift::User.new(DATASIFT_USERNAME, DATASIFT_APIKEY)
+	definition = user.createDefinition(DATASIFT_QUERY)
+	consumer = definition.getConsumer(DataSift::StreamConsumer::TYPE_HTTP)
 	
 	puts 'Connected successfully!'
 
