@@ -1,5 +1,5 @@
 <div class="left-side tweets">
-  <h2>'BBC'</h2>
+  <h2>'MCFC'</h2>
   <ul id="liveTweets" class="contentList">
       <!-- <li><span class="author">Richard</span>
         <span class="sentiment positive">Good</span>
@@ -48,14 +48,14 @@
 
 	Pusher.log = function( msg ) {
 		if( window.console && window.console.log ) {
-//			window.console.log( msg );
+			window.console.log( msg );
 		}
 	};
 
 	$(document).ready(function() {
 		
 		// establish Pusher connection
-		var pusher = new Pusher('<%= @app_key %>');
+		var pusher = new Pusher('<%= @app_key %>', {encrypted: true});
 
 		var liveTweetsChannel = pusher.subscribe('live-tweets');
 
