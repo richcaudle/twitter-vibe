@@ -1,5 +1,5 @@
 require 'pusher'
 
-Pusher.app_id = 'YOUR_APP_ID'
-Pusher.key = 'YOUR_APP_KEY'
-Pusher.secret = 'YOUR_APP_SECRET'
+Pusher.app_id = '29232'
+Pusher.key = 'c9c3170466bc08a48516'
+Pusher.secret = '3729d6f853c8af0136aa'
