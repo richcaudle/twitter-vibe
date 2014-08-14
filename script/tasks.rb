@@ -11,7 +11,7 @@ require 'json'
 def process_twitter_usernames
 
 	# Get twitter auth token
-	twitter_access_token = prepare_access_token('19562292-7mkTsZkGVjuFwRaWVA1cVUlNBdMSnp98KuNbN08lo','Ju0RRXGlCrQCnQ7ZHEQTHlnfMZPUSkSQFI5lmrXtWIE')
+	twitter_access_token = prepare_access_token(TWITTER_TOKEN,TWITTER_TOKENSECRET)
 
 	# Get list of terms with no 'name' value, whose topic is type twitter-username
 	terms = Term.joins(:topic).where("topics.category = 'twitter-mention' AND terms.processed = 'f'").limit(100)
@@ -105,7 +105,7 @@ end
 # Exchange your oauth_token and oauth_token_secret for an AccessToken instance.
 def prepare_access_token(oauth_token, oauth_token_secret)
   
-  consumer = OAuth::Consumer.new("M7rdMmxnRe07eevjr2qNzg", "6Id7IfEYKNA5AM1PTHHitnEd6KgHxXe2NHfNzR2CZhk",
+  consumer = OAuth::Consumer.new(TWITTER_APIKEY, TWITTER_APISECRET,
     { :site => "http://api.twitter.com",
       :scheme => :header
     })

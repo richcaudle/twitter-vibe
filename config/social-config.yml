@@ -1,7 +1,12 @@
 datasift:
-  username: rich_caudle
-  apikey: bc583ac6e70761eb16f4f67e128ea824
-  query: twitter.text contains "mcfc"
+  username: 
+  apikey: 
+  query: interaction.content contains "mcfc" AND interaction.type == "twitter"
+twitter:
+  apikey: 
+  apisecret: 
+  accesstoken: 
+  accesstokensecret: 
 topics:
   -
     name: Users

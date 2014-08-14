@@ -11,46 +11,67 @@ def datasift_connect
 
 	puts 'Connecting to Datasift stream...'
 
-	user = DataSift::User.new(DATASIFT_USERNAME, DATASIFT_APIKEY)
-	definition = user.createDefinition(DATASIFT_QUERY)
-	consumer = definition.getConsumer(DataSift::StreamConsumer::TYPE_HTTP)
+	config = {:username => DATASIFT_USERNAME, :api_key => DATASIFT_APIKEY, :enable_ssl => true}
+ 	datasift = DataSift::Client.new(config)
+ 	filter = datasift.compile DATASIFT_QUERY
+
+	on_delete = lambda { |stream, m| puts 'We must delete this to be compliant ==> ' + m }
+	on_error = lambda { |stream, e| puts "A serious error has occurred: #{e.message}" }
+
+	on_message = lambda do |interaction, stream, hash|
 	
-	puts 'Connected successfully!'
+		if interaction
+			begin
+		
+				# parse tweet
+				tweet = parse_interaction_to_tweet interaction
 
-	# Setting up the onStopped handler
-	consumer.onStopped do |reason|
-		puts 'Stopped: ' + reason
+				# immediately push to front-end
+				publish_tweet(tweet)
+
+				# save the tweet
+				tweet.save
+
+				# parse for topic terms
+				parse_and_save_terms(tweet, interaction)
+				
+			rescue Exception => e  
+				puts '--------- EXCEPTION -------------'
+			    puts e.class
+			    puts e.message
+			    puts e.backtrace
+			end
+		end
+	
 	end
 
-	# Set up the warning event handler.
-	consumer.onWarning do |message|
-		puts 'WARNING: ' + message
+	on_connect = lambda do |stream|
+		puts 'Connected to DataSift'
+	  	stream.subscribe(filter[:data][:hash], on_message)
+	  	puts 'Subscribed to '+ filter[:data][:hash]
 	end
 
-	# Set up the error event handler.
-	consumer.onError do |message|
-		puts 'ERROR: ' + message
-	end
-
-	return consumer
+	conn = DataSift::new_stream(config, on_delete, on_error, on_connect)
+	conn.stream.read_thread.join
 
 end
+
 
 # Parses an interaction into a tweet
 def parse_interaction_to_tweet(interaction)
 
 	#puts interaction.to_yaml
 	tweet = Tweet.new
-	tweet.content = interaction['interaction']['content']
+	tweet.content = interaction[:interaction][:content]
 	
 	begin 
-		tweet.sentiment = interaction['salience']['content']['sentiment']
+		tweet.sentiment = interaction[:salience][:content][:sentiment]
 	rescue
 		tweet.sentiment = 0
 	end
 
-	tweet.author = interaction['interaction']['author']['username']
-	tweet.created_at = interaction['interaction']['created_at']
+	tweet.author = interaction[:interaction][:author][:username]
+	tweet.created_at = interaction[:interaction][:created_at]
 
 	p '------------ NEW TWEET --------------'
 	p tweet.content
@@ -64,10 +85,10 @@ def parse_and_save_terms(tweet, interaction)
 
 	@topics.each do |topic|
 		case topic.category
-		when "twitter-mention"
-			parse_and_save_usermentions(topic.id, tweet, interaction)
-		when "twitter-hashtag"
-			parse_and_save_hashtags(topic.id, tweet)
+			when "twitter-mention"
+				parse_and_save_usermentions(topic.id, tweet, interaction)
+			when "twitter-hashtag"
+				parse_and_save_hashtags(topic.id, tweet)
 		end
 	end
 
@@ -76,11 +97,12 @@ end
 # parses twitter content for people mentions, and saves results to db
 def parse_and_save_usermentions(topic_id, tweet, interaction)
 
-	if interaction['twitter'].include? 'mention_ids'
+	if interaction[:twitter][:mentions]
 
 		p 'User mention found'
 
-		interaction['twitter']['mentions'].each do |mention|
+		interaction[:twitter][:mentions].each do |mention|
+			p 'Mention: ' + mention
 			save_mention(topic_id, tweet.id, mention, true)
 		end
 
@@ -175,31 +197,5 @@ TopicsHelper.initDB
 
 # Connect to datasift
 consumer = datasift_connect
-
-# Handle tweets as they arrive
-consumer.consume(true) do |interaction|
-	if interaction
-		begin
-	
-			# parse tweet
-			tweet = parse_interaction_to_tweet interaction
-
-			# immediately push to front-end
-			publish_tweet(tweet)
-
-			# save the tweet
-			tweet.save
-
-			# parse for topic terms
-			parse_and_save_terms(tweet, interaction)
-			
-		rescue Exception => e  
-			puts '--------- EXCEPTION -------------'
-		    puts e.class
-		    puts e.message
-		    puts e.backtrace
-		end
-	end
-end
 
 # END OF MAIN LOGIC

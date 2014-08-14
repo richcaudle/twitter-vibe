@@ -5,14 +5,7 @@ gem 'rails', '3.2.8'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-group :development do
-  gem 'sqlite3'
-end
-
-group :production do
-  gem 'pg', '0.12.2'
-end
-
+gem 'sqlite3'
 gem 'json'
 gem 'oauth'
 
@@ -29,7 +22,7 @@ group :assets do
 end
 
 gem 'jquery-rails'
-gem 'datasift'
+gem 'datasift', '>=3.1.0'
 gem 'pusher'
 gem 'nokogiri'
 
